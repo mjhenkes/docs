@@ -219,8 +219,6 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 </aside>
 
 <h2 id="invocation">Invocation</h2>
-
-<p>An EHR calls a CSD service by POSTing a JSON document to the service endpoint. See details about the data model <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">in swagger</a></p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
    </span><span class="nt">"hookInstance"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"d1577c69-dfbe-44ad-ba6d-3e05e953b2ea"</span><span class="p">,</span><span class="w">
    </span><span class="nt">"fhirServer"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://hooks.smarthealthit.org:9080"</span><span class="p">,</span><span class="w">
@@ -244,9 +242,12 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
       </span><span class="p">}</span><span class="w">
    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
-
 </span></code></pre>
-<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/example-cds-service"</span>
+
+<p>An EHR calls a CDS service by <code class="prettyprint">POST</code>ing a JSON document to the service
+endpoint. See details about the data model <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">in
+swagger</a></p>
+<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/cds-services/example-cds-service"</span>
 </code></pre>
 
 <blockquote>
