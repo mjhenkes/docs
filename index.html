@@ -175,12 +175,22 @@ when the EHR invokes the hook for a second time with the same
           <h1 id="cds-services">CDS Services</h1>
 
 <h2 id="discovery">Discovery</h2>
+
+<p>Developers of CDS Services must provide a well-known endpoint allowing the EHR to discover all available CDS Services, including information such as the purpose of the CDS Service, when it should be invoked, and any data that is requested to be prefetched.</p>
+
+<h3 id="http-request">HTTP Request</h3>
 <pre class="highlight shell"><code>curl <span class="s2">"https://example.com/.well-known/cds-services"</span>
 </code></pre>
 
-<blockquote>
-<p>The above command returns JSON structured like this:</p>
-</blockquote>
+<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/.well-known/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
+
+<p><code class="prettyprint">GET https://example.com/.well-known/cds-services</code></p>
+
+<aside class="notice">
+The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
+</aside>
+
+<h3 id="response">Response</h3>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"services"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -205,20 +215,6 @@ when the EHR invokes the hook for a second time with the same
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-
-<p>Developers of CDS Services must provide a well-known endpoint allowing the EHR to discover all available CDS Services, including information such as the purpose of the CDS Service, when it should be invoked, and any data that is requested to be prefetched.</p>
-
-<h3 id="http-request">HTTP Request</h3>
-
-<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/.well-known/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
-
-<p><code class="prettyprint">GET https://example.com/.well-known/cds-services</code></p>
-
-<aside class="notice">
-The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
-</aside>
-
-<h3 id="response">Response</h3>
 
 <p>The response to the discovery endpoint is an object containing a list of CDS Services.</p>
 
@@ -296,6 +292,8 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
   prefetch:               0..1 <span class="o">{</span> <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
+
+<h3 id="request-fields">Request fields</h3>
 <pre class="highlight plaintext"><code>curl "https://example.com/cds-services/static-patient-greeter"
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -322,8 +320,6 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-
-<h3 id="request-fields">Request fields</h3>
 
 <p>The CDS Hook call includes the following input fields:</p>
 
