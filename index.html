@@ -1,0 +1,419 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>API Reference</title>
+
+    <style>
+      .highlight table td { padding: 5px; }
+.highlight table pre { margin: 0; }
+.highlight, .highlight .w {
+  color: #f8f8f2;
+  background-color: #272822;
+}
+.highlight .err {
+  color: #151515;
+  background-color: #ac4142;
+}
+.highlight .c, .highlight .cd, .highlight .cm, .highlight .c1, .highlight .cs {
+  color: #505050;
+}
+.highlight .cp {
+  color: #f4bf75;
+}
+.highlight .nt {
+  color: #f4bf75;
+}
+.highlight .o, .highlight .ow {
+  color: #d0d0d0;
+}
+.highlight .p, .highlight .pi {
+  color: #d0d0d0;
+}
+.highlight .gi {
+  color: #90a959;
+}
+.highlight .gd {
+  color: #ac4142;
+}
+.highlight .gh {
+  color: #6a9fb5;
+  background-color: #151515;
+  font-weight: bold;
+}
+.highlight .k, .highlight .kn, .highlight .kp, .highlight .kr, .highlight .kv {
+  color: #aa759f;
+}
+.highlight .kc {
+  color: #d28445;
+}
+.highlight .kt {
+  color: #d28445;
+}
+.highlight .kd {
+  color: #d28445;
+}
+.highlight .s, .highlight .sb, .highlight .sc, .highlight .sd, .highlight .s2, .highlight .sh, .highlight .sx, .highlight .s1 {
+  color: #90a959;
+}
+.highlight .sr {
+  color: #75b5aa;
+}
+.highlight .si {
+  color: #8f5536;
+}
+.highlight .se {
+  color: #8f5536;
+}
+.highlight .nn {
+  color: #f4bf75;
+}
+.highlight .nc {
+  color: #f4bf75;
+}
+.highlight .no {
+  color: #f4bf75;
+}
+.highlight .na {
+  color: #6a9fb5;
+}
+.highlight .m, .highlight .mf, .highlight .mh, .highlight .mi, .highlight .il, .highlight .mo, .highlight .mb, .highlight .mx {
+  color: #90a959;
+}
+.highlight .ss {
+  color: #90a959;
+}
+    </style>
+    <link href="stylesheets/screen.css" rel="stylesheet" media="screen" />
+    <link href="stylesheets/print.css" rel="stylesheet" media="print" />
+      <script src="javascripts/all.js"></script>
+  </head>
+
+  <body class="index" data-languages="[&quot;shell&quot;,&quot;javascript&quot;,&quot;ruby&quot;]">
+    <a href="#" id="nav-button">
+      <span>
+        NAV
+        <img src="images/navbar.png" />
+      </span>
+    </a>
+    <div class="tocify-wrapper">
+      <img src="images/logo.png" />
+        <div class="lang-selector">
+              <a href="#" data-language-name="shell">shell</a>
+              <a href="#" data-language-name="javascript">javascript</a>
+              <a href="#" data-language-name="ruby">ruby</a>
+        </div>
+        <div class="search">
+          <input type="text" class="search" id="input-search" placeholder="Search">
+        </div>
+        <ul class="search-results"></ul>
+      <div id="toc">
+      </div>
+        <ul class="toc-footer">
+            <li><a href='https://github.com/tripit/slate'>Documentation Powered by Slate</a></li>
+        </ul>
+    </div>
+    <div class="page-wrapper">
+      <div class="dark-box"></div>
+      <div class="content">
+        <h1 id="overview">Overview</h1>
+
+<p>This specification describes a
+<a href="http://en.wikipedia.org/wiki/Hooking">&ldquo;hook&rdquo;</a>-based pattern for invoking
+decision support from within a clinician&rsquo;s EHR workflow. The API supports:</p>
+
+<ol>
+<li>Synchronous, workflow-triggered CDS calls returning information and suggestions</li>
+<li>Launching a user-facing SMART app when CDS requires deeper interaction</li>
+<li>Long-running, non-modal CDS sessions that observe EHR activity in progress</li>
+</ol>
+
+<h2 id="design-goals">Design goals</h2>
+
+<ul>
+<li>CDS process that enables end-to-end UX integration with the EHR</li>
+<li>Solve one important CDS problem with the simplest possible approach</li>
+<li>Build on open standards (leveraging vendor investment in SMART on FHIR)</li>
+<li>Enable real-world performance tweaks without changing developers&rsquo; mental model</li>
+</ul>
+
+<h2 id="how-it-works">How it works</h2>
+
+<p>User activity inside the EHR triggers <strong>CDS hooks</strong> in real-time.  For example:</p>
+
+<ul>
+<li><code class="prettyprint">patient-view</code> when opening a new patient record</li>
+<li><code class="prettyprint">medication-prescribe</code> on authoring a new prescription</li>
+<li><code class="prettyprint">order-review</code> on viewing pending orders for approval</li>
+</ul>
+
+<p>When a triggering activity occurs, the EHR notifies each CDS service registered for the activity (see <a href="./CDS Hook Operation"><code class="prettyprint">$cds-hook</code> operation</a>). These services must then provide near-real-time feedback about the triggering event. Each service gets basic details about the EHR
+context (via the <code class="prettyprint">context</code> parameter of the hook) plus whatever
+service-specific data are required (via the <code class="prettyprint">pre-fetch-template</code> parameter).</p>
+
+<p><img alt="CDS Hooks Overview" src="images/overview-with-decisions.png" /></p>
+
+<h2 id="cds-cards">CDS Cards</h2>
+
+<p>Each CDS service can return any number of <strong>cards</strong> in response to the hook.
+Cards convey some combination of text (<em>information card</em>), alternative
+suggestions (<em>suggestion card</em>), and links to apps or reference
+materials (<em>app link card</em>). A user sees these cards — one or more of each type
+— embedded in the EHR, and can interact with them as follows:</p>
+
+<ul>
+<li><p><em>information card</em>: provides text for the user to read.</p></li>
+<li><p><em>suggestion card</em>: provides a specific suggestion for which the EHR renders a button that the user can click to accept. Clicking automatically populates the suggested change into the EHR&rsquo;s UI.</p></li>
+<li><p><em>app link card</em>: provides a link to a SMART app where the user can supply details, step through a flowchart, or do anything else required to help reach an informed decision. When the user has finished, flow returns to the EHR. At that point, the <strong>EHR re-triggers the initial CDS hook</strong>. The re-triggering may result in different cards, and may also include <strong>decisions</strong> (see below).</p></li>
+</ul>
+
+<h2 id="cds-decisions">CDS Decisions</h2>
+
+<p>In addition to cards, a CDS service may also return <strong>decisions</strong> — but only
+after a user has interacted with the service via an <em>app link card</em>.
+Returning a decision allows the the CDS service to communicate the user&rsquo;s choices  to the EHR without displaying an additional card.  For
+example, a user might launch a hypertension management app, and upon
+returning to the EHR&rsquo;s prescription page she expects her new blood pressure
+prescription to &ldquo;just be there&rdquo;. By returning a decision <em>instead of a card</em>,
+the CDS service achieves this expected behavior. (<em>Note:</em> To return a
+decision after a user interaction, the CDS service must maintain state
+associated with the request&rsquo;s <a href="./CDS Hook Operation"><code class="prettyprint">activityId</code></a>;
+when the EHR invokes the <code class="prettyprint">$cds-hook</code> operation for a second time with the same
+<code class="prettyprint">activityId</code>, the service can respond with decisions on as well as cards.)</p>
+
+          <h1 id="cds-services">CDS Services</h1>
+
+<h2 id="discovery">Discovery</h2>
+<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/.well-known/cds-services"</span>
+</code></pre>
+
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"services"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"hook"</span><span class="p">:</span><span class="w"> </span><span class="s2">"patient-view"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Static CDS Service Example"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"An example of a CDS service that returns a static set of cards"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"static"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"prefetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"patient"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient/{{Patient.id}}"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"hook"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medication-prescribe"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Medication Echo CDS Service"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"An example of a CDS service that simply echos the medication being prescribed"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"medication-echo"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"prefetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"patient"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient/{{Patient.id}}"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"medications"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MedicationOrder?patient={{Patient.id}}"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Developers of CDS Services must provide a well-known endpoint allowing the EHR to discover all available CDS Services, including information such as the purpose of the CDS Service, when it should be invoked, and any data that is requested to be prefetched.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/.well-known/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
+
+<p><code class="prettyprint">GET https://example.com/.well-known/cds-services</code></p>
+
+<aside class="notice">
+The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
+</aside>
+
+<h2 id="invocation">Invocation</h2>
+<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/example-cds-service"</span>
+</code></pre>
+
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"cards"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Success Card"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"indicator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"detail"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is an example success card."</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Static CDS Service Example"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://example.com"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"links"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Google"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://google.com"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"label"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Github"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://github.com"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"summary"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Info card"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"indicator"</span><span class="p">:</span><span class="w"> </span><span class="s2">"info"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Static CDS Service Example"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+          <h1 id="community">Community</h1>
+
+<h2 id="get-involved">Get Involved</h2>
+
+<p>There are several ways in which you can get involved with the CDS Hooks community.</p>
+
+<ul>
+<li>Ask a question and participate in discussions via the <a href="https://groups.google.com/forum/#!forum/cds-hooks">CDS Hooks Google Group</a></li>
+<li>Chat via <a href="https://zulip.org/">Zulip</a> at <a href="https://chat.fhir.org">https://chat.fhir.org</a> in the <em>cds-hooks</em> stream</li>
+<li>Contribute to the <a href="https://github.com/cds-hooks">code and documentation on Github</a></li>
+</ul>
+
+<h2 id="cds-hooks-sprint-program">CDS Hooks Sprint Program</h2>
+
+<h3 id="objectives">Objectives</h3>
+
+<ul>
+<li>Promote creation of clinical-grade service integrations (EHRs + CDS Services)</li>
+<li>Gain implementation experience with real-world systems</li>
+<li>Refine the spec, balancing ease of use, flexibility, and stability</li>
+<li>Drive toward pilot deployments with the ability to measure results</li>
+</ul>
+
+<h3 id="technical-objectives">Technical Objectives</h3>
+
+<ol>
+<li><p>Decide <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/9">expectations for <code class="prettyprint">preFetch</code> behavior</a>
+&ndash;&gt; possibly define an open-source gateway to smooth over the difference</p></li>
+<li><p>Determine an <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/10">approach to publishing metadata</a> (&ldquo;JSON snippets&rdquo;)</p></li>
+<li><p>~~Evaluate approaches to conveying inputs/outputs in <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/11">&ldquo;simple&rdquo; (i.e. normal) JSON</a>~~</p></li>
+<li><p>Determine an <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/12">approach to security (authentication/authorization)</a></p></li>
+</ol>
+
+<ul>
+<li>CDS Service needs to authenticate the EHR &ndash;&gt; OAuth interaction</li>
+<li>EHR needs to authenticate the service &ndash;&gt; simple bearer tokens</li>
+</ul>
+
+<h3 id="ways-to-help">Ways to help</h3>
+
+<h5 id="help-build-out-core-infrastructure">Help build out core infrastructure</h5>
+
+<ol>
+<li><a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/1">Write a service exposing Card fixtures for testing</a></li>
+<li><a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/2">Write a tutorial</a></li>
+<li><a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/3">Write a preFetch Proxy</a></li>
+<li>Write a set of test hook <em>calls</em></li>
+</ol>
+
+<h5 id="build-your-own-components">Build your own components:</h5>
+
+<ol>
+<li>CDS services</li>
+<li>EHR support</li>
+</ol>
+
+<h3 id="pilot-opportunities">Pilot Opportunities</h3>
+
+<ul>
+<li>BCH/Cerner building support for prescription hooks</li>
+<li>Others?</li>
+</ul>
+
+<h2 id="create-a-cds-hook">Create a CDS Hook</h2>
+
+<ol>
+<li>Listen at {{base}}/$cds-hook</li>
+<li>Expose metadata at {{base}}/$cds-hook-metadata</li>
+<li>Load into test harness and try it</li>
+</ol>
+
+<h2 id="sprint-1-two-weeks">Sprint 1 (two weeks)</h2>
+
+<h4 id="infrastructure">Infrastructure:</h4>
+
+<ul>
+<li>Establish a <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/4">repository of &ldquo;test cards&rdquo;</a></li>
+<li>Stand up a <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/5">&ldquo;test card service&rdquo;</a> to host them (fixtures)</li>
+<li><a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/6">Build a &ldquo;CDS invoker&rdquo; that simulates an EHR</a>, invoking external services with fixed payloads </li>
+</ul>
+
+<h4 id="ehr-participants">EHR participants:</h4>
+
+<ul>
+<li>Call a CDS Service for <code class="prettyprint">patient-view</code> activity</li>
+<li>Display text cards inline</li>
+</ul>
+
+<h4 id="cds-service-participants">CDS Service participants:</h4>
+
+<ul>
+<li>Build a CDS Service responding to <code class="prettyprint">patient-view</code> activity</li>
+<li>&ldquo;Information cards&rdquo; only (plain text), for a start</li>
+</ul>
+
+<h2 id="sprint-2-two-weeks">Sprint 2 (two weeks)</h2>
+
+<h4 id="infrastructure">Infrastructure:</h4>
+
+<ul>
+<li>Build a <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/7">&ldquo;card validator&rdquo;</a> that provides rapid, automated feedback if cards have errors</li>
+<li><a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/8">Integrate &ldquo;card validator&rdquo; into &ldquo;test EHR&rdquo;</a></li>
+</ul>
+
+<h4 id="ehr-participants">EHR participants:</h4>
+
+<ul>
+<li>Display <code class="prettyprint">app link</code> cards, and <code class="prettyprint">information</code> cards with markdown, inline</li>
+<li>Ensure that FHIR API endpoint is included in service calls</li>
+</ul>
+
+<h4 id="cds-service-participants">CDS Service participants:</h4>
+
+<ul>
+<li>Return <code class="prettyprint">app link</code> cards and <code class="prettyprint">information</code> card with markdown, inline</li>
+</ul>
+
+<h2 id="sprint-3-two-weeks">Sprint 3 (two weeks)</h2>
+
+<h4 id="infrastructure">Infrastructure:</h4>
+
+<ul>
+<li><p>Build a <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/3">&ldquo;preFetch proxy&rdquo;</a> to automatically produce preFetch data when unavailable from EHR</p></li>
+<li><p>Write a <a href="https://github.com/cds-hooks/cds-hooks-wiki/issues/2">CDS Service developer&rsquo;s tutorial</a></p></li>
+</ul>
+
+<h4 id="ehr-participants">EHR participants:</h4>
+
+<ul>
+<li>Build support for <code class="prettyprint">preFetch</code> data ?</li>
+</ul>
+
+<h4 id="cds-service-participants">CDS Service participants:</h4>
+
+<ul>
+<li>Set up automated testing with the CDS Invoker</li>
+</ul>
+
+      </div>
+      <div class="dark-box">
+          <div class="lang-selector">
+                <a href="#" data-language-name="shell">shell</a>
+                <a href="#" data-language-name="javascript">javascript</a>
+                <a href="#" data-language-name="ruby">ruby</a>
+          </div>
+      </div>
+    </div>
+  </body>
+</html>
