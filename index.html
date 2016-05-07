@@ -218,6 +218,66 @@ when the EHR invokes the hook for a second time with the same
 The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
 </aside>
 
+<h3 id="response">Response</h3>
+
+<p>The response to the discovery endpoint is an object containing a list of CDS Services.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">services</code> <em>array</em></td>
+<td>An array of <em>CDS Services</em></td>
+</tr>
+</tbody></table>
+
+<p>Each CDS Service is described by the following attributes.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">hook</code> <em>string</em></td>
+<td>The hook this service should be invoked on<br />(todo: link to hook documentation)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">name</code> <em>string</em></td>
+<td>The name of this service</td>
+</tr>
+<tr>
+<td><code class="prettyprint">description</code> <em>string</em></td>
+<td>The description of this service</td>
+</tr>
+<tr>
+<td><code class="prettyprint">id</code> <em>string</em></td>
+<td>The {id} portion of the URL to this service which is available at<br /><code class="prettyprint">{baseUrl}/cds-services/{id}</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">prefetch</code> <em>object</em></td>
+<td>An object containing key/value pairs of FHIR queries to data<br />that this service would like the EHR prefetch and provide on<br />each service call. The key is a <em>string</em> that describes the type<br />of data being requested and the value is a <em>string</em> representing<br />the FHIR query.<br />(todo: link to prefetching documentation)</td>
+</tr>
+</tbody></table>
+
+<h3 id="http-status-codes">HTTP Status Codes</h3>
+
+<table><thead>
+<tr>
+<th>Code</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">200 OK</code></td>
+<td>A successful response</td>
+</tr>
+</tbody></table>
+
 <h2 id="calling-a-cds-service">Calling a CDS Service</h2>
 <pre class="highlight shell"><code><span class="o">{</span>
   hookInstannce:          1..1,
@@ -341,31 +401,31 @@ about the data model <a href="http://editor.swagger.io/#/?import=https://raw.git
 swagger</a></p>
 
 <h2 id="cds-service-response">CDS Service Response</h2>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="err">card:</span><span class="w">                   </span><span class="err">0..*</span><span class="w"> </span><span class="err">{</span><span class="w">
-    </span><span class="err">summary:</span><span class="w">              </span><span class="err">1..1,</span><span class="w">
-    </span><span class="err">detail:</span><span class="w">               </span><span class="err">0..1,</span><span class="w">
-    </span><span class="err">indicator:</span><span class="w">            </span><span class="err">1..1,</span><span class="w">
-    </span><span class="err">source:</span><span class="w">               </span><span class="err">1..1</span><span class="w"> </span><span class="err">{</span><span class="w">
-      </span><span class="err">label:</span><span class="w">              </span><span class="err">1..1,</span><span class="w">
-      </span><span class="err">url:</span><span class="w">                </span><span class="err">0..1</span><span class="w">
-    </span><span class="p">}</span><span class="err">,</span><span class="w">
-    </span><span class="err">suggestion:</span><span class="w">           </span><span class="mi">0</span><span class="err">..*</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="err">label:</span><span class="w">              </span><span class="err">0..1,</span><span class="w">
-      </span><span class="err">create:</span><span class="w">             </span><span class="err">0..*,</span><span class="w">
-      </span><span class="err">delete:</span><span class="w">             </span><span class="err">0..*</span><span class="w">
-    </span><span class="p">}</span><span class="err">,</span><span class="w">
-    </span><span class="err">link:</span><span class="w">                 </span><span class="mi">0</span><span class="err">..*</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="err">label:</span><span class="w">              </span><span class="err">0..1,</span><span class="w">
-      </span><span class="err">url:</span><span class="w">                </span><span class="err">0..1</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-  </span><span class="err">},</span><span class="w">
-  </span><span class="err">decision:</span><span class="w">               </span><span class="mi">0</span><span class="err">..*</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="err">create:</span><span class="w">               </span><span class="err">0..*,</span><span class="w">
-    </span><span class="err">delete:</span><span class="w">               </span><span class="err">0..*</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="err">}</span><span class="w">
-</span></code></pre>
+<pre class="highlight shell"><code><span class="o">{</span>
+  card:                   0..<span class="k">*</span> <span class="o">{</span>
+    summary:              1..1,
+    detail:               0..1,
+    indicator:            1..1,
+    <span class="nb">source</span>:               1..1 <span class="o">{</span>
+      label:              1..1,
+      url:                0..1
+    <span class="o">}</span>,
+    suggestion:           0..<span class="k">*</span> <span class="o">{</span>
+      label:              0..1,
+      create:             0..<span class="k">*</span>,
+      delete:             0..<span class="k">*</span>
+    <span class="o">}</span>,
+    link:                 0..<span class="k">*</span> <span class="o">{</span>
+      label:              0..1,
+      url:                0..1
+    <span class="o">}</span>
+  <span class="o">}</span>,
+  decision:               0..<span class="k">*</span> <span class="o">{</span>
+    create:               0..<span class="k">*</span>,
+    delete:               0..<span class="k">*</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</code></pre>
 
 <p><strong><code class="prettyprint">card</code></strong> one CDS result for the EHR to present to the user. Cards can provide a 
 combination of information (for reading), suggested actions (to be applied if a user
