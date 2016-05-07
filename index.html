@@ -187,7 +187,7 @@ when the EHR invokes the hook for a second time with the same
       </span><span class="nt">"hook"</span><span class="p">:</span><span class="w"> </span><span class="s2">"patient-view"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Static CDS Service Example"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"An example of a CDS service that returns a static set of cards"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"static"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"static-patient-greeter"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"prefetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"patient"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient/{{Patient.id}}"</span><span class="w">
       </span><span class="p">}</span><span class="w">
@@ -219,6 +219,12 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 </aside>
 
 <h2 id="invocation">Invocation</h2>
+
+<p>An EHR calls a CDS service by <code class="prettyprint">POST</code>ing a JSON document to the service
+endpoint. See details about the data model <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">in
+swagger</a></p>
+<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/cds-services/static-patient-greeter"</span>
+</code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
    </span><span class="nt">"hookInstance"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"d1577c69-dfbe-44ad-ba6d-3e05e953b2ea"</span><span class="p">,</span><span class="w">
    </span><span class="nt">"fhirServer"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://hooks.smarthealthit.org:9080"</span><span class="p">,</span><span class="w">
@@ -243,12 +249,6 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-
-<p>An EHR calls a CDS service by <code class="prettyprint">POST</code>ing a JSON document to the service
-endpoint. See details about the data model <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">in
-swagger</a></p>
-<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/cds-services/example-cds-service"</span>
-</code></pre>
 
 <blockquote>
 <p>The above command returns JSON structured like this:</p>
