@@ -232,6 +232,31 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 <h2 id="invocation">Invocation</h2>
 
 <p>An EHR calls a CSD service by POSTing a JSON document to the service endpoint. See details about the data model <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">in swagger</a></p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="nt">"hookInstance"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"d1577c69-dfbe-44ad-ba6d-3e05e953b2ea"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"fhirServer"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://hooks.smarthealthit.org:9080"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"hook"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"patient-view"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"redirect"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"http://hooks2.smarthealthit.org/service-done.html"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"prefetch"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"patientToGreet"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+         </span><span class="nt">"response"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"status"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"200 OK"</span><span class="w">
+         </span><span class="p">},</span><span class="w">
+         </span><span class="nt">"resource"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"resourceType"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"gender"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"male"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"birthDate"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1925-12-23"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"id"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1288992"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"active"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+         </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+   </span><span class="p">},</span><span class="w">
+   </span><span class="nt">"user"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"Practitioner/example"</span><span class="p">,</span><span class="w">
+   </span><span class="nt">"context"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+   </span><span class="nt">"patient"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"1288992"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
 <pre class="highlight shell"><code>curl <span class="s2">"https://example.com/example-cds-service"</span>
 </code></pre>
 
