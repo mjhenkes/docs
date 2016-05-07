@@ -149,7 +149,7 @@ decision support from within a clinician&rsquo;s EHR workflow. The API supports:
 <li><code class="prettyprint">order-review</code> on viewing pending orders for approval</li>
 </ul>
 
-<p>When a triggering activity occurs, the EHR notifies each CDS service registered for the activity (see <a href="./CDS Hook Operation"><code class="prettyprint">$cds-hook</code> operation</a>). These services must then provide near-real-time feedback about the triggering event. Each service gets basic details about the EHR
+<p>When a triggering activity occurs, the EHR notifies each CDS service registered for the activity. These services must then provide near-real-time feedback about the triggering event. Each service gets basic details about the EHR
 context (via the <code class="prettyprint">context</code> parameter of the hook) plus whatever
 service-specific data are required (via the <code class="prettyprint">pre-fetch-template</code> parameter).</p>
 
@@ -179,9 +179,9 @@ returning to the EHR&rsquo;s prescription page she expects her new blood pressur
 prescription to &ldquo;just be there&rdquo;. By returning a decision <em>instead of a card</em>,
 the CDS service achieves this expected behavior. (<em>Note:</em> To return a
 decision after a user interaction, the CDS service must maintain state
-associated with the request&rsquo;s <a href="./CDS Hook Operation"><code class="prettyprint">activityId</code></a>;
+associated with the request&rsquo;s <code class="prettyprint">hookInstance</code>;
 when the EHR invokes the <code class="prettyprint">$cds-hook</code> operation for a second time with the same
-<code class="prettyprint">activityId</code>, the service can respond with decisions on as well as cards.)</p>
+<code class="prettyprint">hookInstance</code>, the service can respond with decisions on as well as cards.)</p>
 
           <h1 id="cds-services">CDS Services</h1>
 
