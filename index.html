@@ -300,7 +300,11 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
   prefetch:               0..1 <span class="o">{</span> <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
-<pre class="highlight plaintext"><code>curl "https://example.com/cds-services/static-patient-greeter"
+<pre class="highlight plaintext"><code>curl
+  -X POST \
+  -H 'Content-type: application/json' \
+  --data @hook-details-see-below
+  "https://example.com/cds-services/static-patient-greeter"
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
    </span><span class="nt">"hookInstance"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="s2">"d1577c69-dfbe-44ad-ba6d-3e05e953b2ea"</span><span class="p">,</span><span class="w">
@@ -329,7 +333,10 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p>The CDS Hook call includes the following input fields:</p>
+<p>An EHR calls a CDS service by <code class="prettyprint">POST</code>ing a JSON document to the service
+endpoint, which can be constructed from the CDS Service base URL and an
+individual serviec id as <code class="prettyprint">{baseUrl}/cds-services/{service.id}</code>.  The CDS Hook
+call includes a JSON POST body with the following input fields:</p>
 
 <table><thead>
 <tr>
@@ -432,10 +439,7 @@ to the service&rsquo;s [[Prefetch-Template]]. This helps provide the service wit
 the data it needs to efficiently compute a set of recommendations. Each key matches a key described in the CDS Service Discovery document; and each value is a FHIR Bundle.entry indicating a response status and returned resource.</p>
 
 <p>Note that in the absence of <code class="prettyprint">prefetch</code>, an external service can always execute
-FHIR REST API calls against the EHR server to obtain additional data ad-hoc.)
-An EHR calls a CDS service by <code class="prettyprint">POST</code>ing a JSON document to the service
-endpoint, which can be constructed from the CDS Service base URL and an
-individual serviec id as <code class="prettyprint">{baseUrl}/cds-services/{service.id}</code>.</p>
+FHIR REST API calls against the EHR server to obtain additional data ad-hoc.)</p>
 
 <aside class="notice">
 You can see the <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">complete data model in Swagger</a>.
