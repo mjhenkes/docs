@@ -561,11 +561,23 @@ You can see the <a href="http://editor.swagger.io/#/?import=https://raw.githubus
 </tr>
 </tbody></table>
 
-<p>Each <strong>Decision</strong> described by the following attributes.
-Field | Description
-&mdash;&ndash; | &mdash;&mdash;&mdash;&ndash;
-<code class="prettyprint">create</code> |<em>array</em> of <em>strings</em>. id(s) of new resource(s) that the EHR should create within the current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this would be the updated prescription that a user had authored in an app session).
-<nobr><code class="prettyprint">delete</code></nobr> |<em>array</em> of <em>strings</em>. id(s) of any resources to remove from the current activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code> where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</p>
+<p>Each <strong>Decision</strong> described is by the following attributes.</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">create</code></td>
+<td><em>array</em> of <em>strings</em>. id(s) of new resource(s) that the EHR should create within the current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this would be the updated prescription that a user had authored in an app session).</td>
+</tr>
+<tr>
+<td><nobr><code class="prettyprint">delete</code></nobr></td>
+<td><em>array</em> of <em>strings</em>. id(s) of any resources to remove from the current activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code> where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</td>
+</tr>
+</tbody></table>
 
 <h1 id="analytics">Analytics</h1>
 
