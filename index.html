@@ -690,10 +690,6 @@ you should use a URI (e.g.
 <code class="prettyprint">http://my-organization/custom-hooks/patient-transmogrify</code>).</p>
 
 <h2 id="medication-prescribe"><code class="prettyprint">medication-prescribe</code></h2>
-
-<p><strong>Purpose</strong>: Inform an external CDS service that the user is in the process of
-prescribing a new medication, and solicit feedback about the
-prescription-in-progress.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MedicationPrescription"</span><span class="p">,</span><span class="w">
@@ -704,14 +700,14 @@ prescription-in-progress.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
+<p><strong>Purpose</strong>: Inform an external CDS service that the user is in the process of
+prescribing a new medication, and solicit feedback about the
+prescription-in-progress.</p>
+
 <p><strong>Contextual data</strong>: The set of proposed medication prescriptions. using the
 FHIR <code class="prettyprint">MedicationPrescription</code> resource. See example in the sidebar.</p>
 
 <h2 id="order-review"><code class="prettyprint">order-review</code></h2>
-
-<p><strong>Purpose</strong>: Inform an external CDS service that the user is in the process of
-reviewing a set of orders (sometimes known as a &ldquo;shopping cart&rdquo;), and solicit
-feedback about the orders being reviewed.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DiagnosticOrder"</span><span class="p">,</span><span class="w">
@@ -719,6 +715,10 @@ feedback about the orders being reviewed.</p>
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<p><strong>Purpose</strong>: Inform an external CDS service that the user is in the process of
+reviewing a set of orders (sometimes known as a &ldquo;shopping cart&rdquo;), and solicit
+feedback about the orders being reviewed.</p>
 
 <p><strong>Contextual data</strong>: The set of orders being reviewed on-screen, represented
 using a combination of MedicationOrder, DiagnosticOrder, DeviceUseRequest,
