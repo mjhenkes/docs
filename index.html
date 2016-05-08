@@ -531,6 +531,110 @@ activity (e.g. for the <code class="prettyprint">order-review</code> activity, t
 remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code>
 where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</p>
 
+          <h1 id="prefetch">Prefetch</h1>
+
+<h2 id="a-performance-tweak">A performance tweak</h2>
+
+<p>If real-world performance were no issue, an EHR could launch a CDS Service
+passing only <em>context</em> data, and <em>without passing any additional clinical data</em>
+up-front. The CDS Service could then request any data it needed via the EHR&rsquo;s
+FHIR REST API.</p>
+
+<p>But CDS services must respond quickly (on the order of 500 ms), and so we
+provide a performance tweak that allows an app to register a set of &ldquo;prefetch
+templates&rdquo; with the EHR ahead of time.</p>
+
+<p>The prefetch templates are a dictionary <code class="prettyprint">read</code> and <code class="prettyprint">search</code> requests to supply
+relevant data, where the following variables are defined:</p>
+
+<table><thead>
+<tr>
+<th>variable</th>
+<th>meaning</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">{{Patient.id}}</code></td>
+<td>The id of the patient in context for this activity (e.g. <code class="prettyprint">123</code>)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">{{User.id}}</code></td>
+<td>The type and id of the user for this session (e.g. <code class="prettyprint">Practitioner/123</code>)</td>
+</tr>
+</tbody></table>
+
+<p>Before calling the CDS Service, the EHR will fill out this template, replacing
+<code class="prettyprint">{{Patient.id}}</code> with the id of the current patient (e.g. <code class="prettyprint">123</code>) inside of any
+URL strings. The EHR then executes the requests in the template as a set of
+FHIR <code class="prettyprint">read</code> and <code class="prettyprint">search</code> operations (exactly as though they had been submitted
+to the server&rsquo;s &ldquo;transaction&rdquo; endpoint as a FHIR batch-type bundle).</p>
+
+<p>The resulting response, which must be rendered in a single page — no &ldquo;next
+page&rdquo; links allowed — is passed along to the CDS Service using the
+<code class="prettyprint">prefetch</code> parameter (see below for a complete example).</p>
+
+<h2 id="example-prefetch-request">Example prefetch request</h2>
+<pre class="highlight plaintext"><code>"prefetch": {
+  "p": "Patient/{{Patient.id}}",
+  "a1c": "Observation?patient={{Patient.id}}&amp;code=4548-4&amp;_count=1&amp;sort:desc=date"
+}
+</code></pre>
+
+<p>Here is an example prefetch property from a CDS service discovery endpoint. The
+goal is to know, at call time:</p>
+
+<ul>
+<li>Patient demographics</li>
+<li>Most recent Hemoglobin A1c reading for this patient</li>
+</ul>
+
+<h2 id="example-prefetch-response">Example prefetch response</h2>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"prefetch"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"p"</span><span class="p">:{</span><span class="w">
+      </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"200 OK"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"gender"</span><span class="p">:</span><span class="w"> </span><span class="s2">"male"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"birthDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1974-12-25"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for concision&gt;"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"a1c"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"response"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"200 OK"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"resource"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Bundle"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"searchset"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"entry"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+          </span><span class="nt">"resource"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Observation"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+              </span><span class="nt">"coding"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+                </span><span class="nt">"system"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://loinc.org"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"code"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4548-4"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hemoglobin A1c"</span><span class="w">
+              </span><span class="p">}]</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for concision&gt;"</span><span class="w">
+          </span><span class="p">}</span><span class="w">
+        </span><span class="p">}]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The response is augmented to include two prefetch values, where the dictionary
+keys match the request keys (<code class="prettyprint">p</code> and <code class="prettyprint">a1c</code> in this case).</p>
+
+<p>Note that a missing key indicates that an EHR has not attempted to supply a
+given prefetch value; the CDS service can issue the request manually at call
+time to fetch the required data.&ldquo;</p>
+
           <h1 id="community">Community</h1>
 
 <h2 id="get-involved">Get Involved</h2>
