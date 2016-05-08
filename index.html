@@ -175,22 +175,12 @@ when the EHR invokes the hook for a second time with the same
           <h1 id="cds-services">CDS Services</h1>
 
 <h2 id="discovery">Discovery</h2>
-
-<p>Developers of CDS Services must provide a well-known endpoint allowing the EHR to discover all available CDS Services, including information such as the purpose of the CDS Service, when it should be invoked, and any data that is requested to be prefetched.</p>
-
-<h3 id="http-request">HTTP Request</h3>
 <pre class="highlight shell"><code>curl <span class="s2">"https://example.com/.well-known/cds-services"</span>
 </code></pre>
 
-<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/.well-known/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
-
-<p><code class="prettyprint">GET https://example.com/.well-known/cds-services</code></p>
-
-<aside class="notice">
-The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
-</aside>
-
-<h3 id="response">Response</h3>
+<blockquote>
+<p>The above command returns JSON structured like this:</p>
+</blockquote>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"services"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
     </span><span class="p">{</span><span class="w">
@@ -215,6 +205,20 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
   </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<p>Developers of CDS Services must provide a well-known endpoint allowing the EHR to discover all available CDS Services, including information such as the purpose of the CDS Service, when it should be invoked, and any data that is requested to be prefetched.</p>
+
+<h3 id="http-request">HTTP Request</h3>
+
+<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/.well-known/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
+
+<p><code class="prettyprint">GET https://example.com/.well-known/cds-services</code></p>
+
+<aside class="notice">
+The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
+</aside>
+
+<h3 id="response">Response</h3>
 
 <p>The response to the discovery endpoint is an object containing a list of CDS Services.</p>
 
@@ -292,8 +296,6 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
   prefetch:               0..1 <span class="o">{</span> <span class="o">}</span>
 <span class="o">}</span>
 </code></pre>
-
-<h3 id="request-fields">Request fields</h3>
 <pre class="highlight plaintext"><code>curl "https://example.com/cds-services/static-patient-greeter"
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -321,11 +323,61 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
+<h3 id="http-request">HTTP Request</h3>
+
 <p>The CDS Hook call includes the following input fields:</p>
 
-<p><strong><code class="prettyprint">hook</code></strong> name of the hook (a string or URL) that the user has triggered in the EHR (e.g. <code class="prettyprint">patient-view</code>, or <code class="prettyprint">medication-prescribe</code>).</p>
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">hook</code><em>string</em> or <em>URL</em></td>
+<td>The hook that triggered this CDS Service call<br />(todo: link to hook documentation)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">hookInstance</code> <em>string</em></td>
+<td>A UUID for this particular hook call (see more information below)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">fhirServer</code> <em>URL</em></td>
+<td>The base URL EHR&rsquo;s <a href="https://www.hl7.org/fhir/">FHIR</a> server. The scheme should be <code class="prettyprint">https</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">oauth</code> <em>string</em></td>
+<td>The OAuth2 access token providing access to the EHR&rsquo;s FHIR server (see more information below)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">redirect</code> <em>URL</em></td>
+<td>The URL an app link card should redirect to (see more information below)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">user</code> <em>string</em></td>
+<td>The FHIR resource type + id representing the current user.<br />The type is one of: <a href="https://www.hl7.org/fhir/practitioner.html">Practitioner</a>, <a href="https://www.hl7.org/fhir/patient.html">Patient</a>, or <a href="https://www.hl7.org/fhir/relatedperson.html">RelatedPerson</a>.<br />For example, <code class="prettyprint">Practitioner/123</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">patient</code> <em>string</em></td>
+<td>The <a href="https://www.hl7.org/fhir/patient-definitions.html#Patient.identifier">FHIR Patient identifier</a> attribute of the current patient in context</td>
+</tr>
+<tr>
+<td><code class="prettyprint">encounter</code> <em>string</em></td>
+<td>The <a href="https://www.hl7.org/fhir/encounter-definitions.html#Encounter.identifier">FHIR Encounter identifier</a> attribute of the current encounter in context</td>
+</tr>
+<tr>
+<td><code class="prettyprint">context</code> <em>object</em></td>
+<td>Hook-specific contextual data that the CDS service will need.<br />For example, with the <code class="prettyprint">medication-prescribe</code> hook this will include <a href="https://www.hl7.org/fhir/medicationorder.html">MedicationOrder</a> being prescribed.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">prefetchData</code> <em>object</em></td>
+<td>The FHIR data that was prefetched by the EHR (see more information below)</td>
+</tr>
+</tbody></table>
 
-<p><strong><code class="prettyprint">hookInstance</code></strong> While working in the EHR, a user can perform
+<h4 id="hookinstance">hookInstance</h4>
+
+<p>While working in the EHR, a user can perform
 multiple activities in series or in parallel. For example, a clinician might prescribe
 two drugs in a row; each prescription activity would be assigned a
 unique <code class="prettyprint">hookInstance</code>. The [[activity catalog|Activity]]
@@ -346,10 +398,9 @@ the steps are tied together by a common <code class="prettyprint">hookInstance</
 <p>Note: the <code class="prettyprint">hookInstance</code> is globally unique and should contain enough entropy
 to be un-guessable.</p>
 
-<p><strong><code class="prettyprint">fhirServer</code></strong> Base URL for the calling EHR&rsquo;s FHIR server. The scheme should
-be <code class="prettyprint">https</code>.</p>
+<h4 id="oauth">oauth</h4>
 
-<p><strong><code class="prettyprint">oauth</code></strong> Security details allowing the CDS service to connect to the EHR&rsquo;s
+<p>Security details allowing the CDS service to connect to the EHR&rsquo;s
 FHIR server.  These fields allow the CDS service to access EHR data in a
 context limited by the current user&rsquo;s privileges. <code class="prettyprint">expires</code> expresses the
 token lifetime as an integer number of seconds. <code class="prettyprint">scope</code> represents the set of
@@ -360,7 +411,9 @@ service makes to the EHR, by including it in an Authorization header like:</p>
 
 <p><code class="prettyprint">Authorization: Bearer {{token}}</code></p>
 
-<p><strong><code class="prettyprint">redirect</code></strong> This field is only used by services that will return an <em>app
+<h4 id="redirect">redirect</h4>
+
+<p>This field is only used by services that will return an <em>app
 link card</em>: when a user clicks the card&rsquo;s link to launch an app, it becomes
 the app&rsquo;s job to send the user to <em>this <code class="prettyprint">redirect</code> URL</em> upon completion of
 user interaction. (<em>Design note</em>: this field is supplied up-front, as part of
@@ -368,25 +421,11 @@ the initial request, to avoid requiring the EHR to append any content to app
 launch links. This helps support an important &ldquo;degenerate&rdquo; use case for app
 link cards: pointing to static content. See below for details.)</p>
 
-<p><strong><code class="prettyprint">user</code></strong> The  FHIR resource type + id representing the current user. For
-example, <code class="prettyprint">Practitioner/123</code>. The type is one of: <code class="prettyprint">Practitioner</code>, <code class="prettyprint">Patient</code>, or
-<code class="prettyprint">RelatedPerson</code>.</p>
+<h4 id="prefetch">prefetch</h4>
 
-<p><strong><code class="prettyprint">patient</code></strong> The  FHIR resource id of the current patient. For example,
-<code class="prettyprint">123</code>.</p>
-
-<p><strong><code class="prettyprint">encounter</code></strong> The  FHIR resource id of the current encounter.  For example,
-<code class="prettyprint">123</code>.</p>
-
-<p><strong><code class="prettyprint">context</code></strong> activity-specific contextual data (see [[Activity]]) that an external service
-needs. (For exampe, with the <code class="prettyprint">order-review</code> activity this will include
-MedicationOrder and  Diagnostic resources, among others)</p>
-
-<p><strong><code class="prettyprint">prefetch</code></strong> as a performance tweak, the EHR may pass along data according to
-the service&rsquo;s [[Prefetch-Template]]. This helps provide the service with all
-the data it needs to efficiently compute a set of recommendations. Each key
-matches a key described in the CDS Service Discovery document; and each value
-is a FHIR Bundle.entry indicating a <code class="prettyprint">response</code> status and returned <code class="prettyprint">resource</code>.</p>
+<p>As a performance tweak, the EHR may pass along data according
+to the service&rsquo;s [[Prefetch-Template]]. This helps provide the service with all
+the data it needs to efficiently compute a set of recommendations. Each key matches a key described in the CDS Service Discovery document; and each value is a FHIR Bundle.entry indicating a response status and returned resource.</p>
 
 <p>Note that in the absence of <code class="prettyprint">prefetch</code>, an external service can always execute
 FHIR REST API calls against the EHR server to obtain additional data ad-hoc.)
@@ -394,9 +433,9 @@ An EHR calls a CDS service by <code class="prettyprint">POST</code>ing a JSON do
 endpoint, which can be constructed from the CDS Service base URL and an
 individual serviec id as <code class="prettyprint">{baseUrl}/cds-services/{service.id}</code>.</p>
 
-<p>See details
-about the data model <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">in
-swagger</a></p>
+<aside class="notice">
+You can see the <a href="http://editor.swagger.io/#/?import=https://raw.githubusercontent.com/cds-hooks/api/master/cds-hooks.yaml?token=AATHAQY8vqQ6dIZajRuuE55EWMBitTptks5XLMk6wA%3D%3D">complete data model in Swagger</a>.
+</aside>
 
 <h2 id="cds-service-response">CDS Service Response</h2>
 <pre class="highlight shell"><code><span class="o">{</span>
@@ -599,7 +638,7 @@ goal is to know, at call time:</p>
         </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"gender"</span><span class="p">:</span><span class="w"> </span><span class="s2">"male"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"birthDate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1974-12-25"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for concision&gt;"</span><span class="w">
+        </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for brevity&gt;"</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"a1c"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -619,7 +658,7 @@ goal is to know, at call time:</p>
                 </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Hemoglobin A1c"</span><span class="w">
               </span><span class="p">}]</span><span class="w">
             </span><span class="p">},</span><span class="w">
-            </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for concision&gt;"</span><span class="w">
+            </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for brevity&gt;"</span><span class="w">
           </span><span class="p">}</span><span class="w">
         </span><span class="p">}]</span><span class="w">
       </span><span class="p">}</span><span class="w">
@@ -634,6 +673,64 @@ keys match the request keys (<code class="prettyprint">p</code> and <code class=
 <p>Note that a missing key indicates that an EHR has not attempted to supply a
 given prefetch value; the CDS service can issue the request manually at call
 time to fetch the required data.&ldquo;</p>
+
+          <h1 id="hook-catalog">Hook Catalog</h1>
+
+<h2 id="pre-defined-cds-hooks">Pre-defined CDS hooks</h2>
+
+<p>We describe a set of hooks to support common use cases out of the box.
+But <strong>this is not a closed set</strong>; anyone can define new hooks to address new use
+cases. To propose a new hooks please add it to the <a href="https://github.com/cds-hooks/docs/wiki/Proposed-Hooks">proposed hooks</a> page of our wiki.</p>
+
+<p>Note that each hook (e.g. <code class="prettyprint">medication-prescribe</code>) represents something the user is doing in the EHR; various hooks might respond to the same hook (e.g. a &ldquo;price check&rdquo; service and a &ldquo;prior authorization&rdquo; service might both respond to <code class="prettyprint">medication-prescribe</code>).</p>
+
+<p>Note also that each hook name in our official catalog is a simple string. If
+you want to define custom hooks without submitting them to the catalog, then
+you should use a URI (e.g.
+<code class="prettyprint">http://my-organization/custom-hooks/patient-transmogrify</code>).</p>
+
+<h2 id="medication-prescribe"><code class="prettyprint">medication-prescribe</code></h2>
+
+<p><strong>Purpose</strong>: Inform an external CDS service that the user is in the process of
+prescribing a new medication, and solicit feedback about the
+prescription-in-progress.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MedicationPrescription"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"medicationCodeableConcept: {
+      "</span><span class="err">...</span><span class="nt">": "</span><span class="err">&lt;snipped</span><span class="w"> </span><span class="err">for</span><span class="w"> </span><span class="err">brevity&gt;"</span><span class="w">
+    </span><span class="err">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="err">}</span><span class="w">
+</span></code></pre>
+
+<p><strong>Contextual data</strong>: The set of proposed medication prescriptions. using the
+FHIR <code class="prettyprint">MedicationPrescription</code> resource. See example in the sidebar.</p>
+
+<h2 id="order-review"><code class="prettyprint">order-review</code></h2>
+
+<p><strong>Purpose</strong>: Inform an external CDS service that the user is in the process of
+reviewing a set of orders (sometimes known as a &ldquo;shopping cart&rdquo;), and solicit
+feedback about the orders being reviewed.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"context"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"resourceType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"DiagnosticOrder"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"..."</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;snipped for brevity&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p><strong>Contextual data</strong>: The set of orders being reviewed on-screen, represented
+using a combination of MedicationOrder, DiagnosticOrder, DeviceUseRequest,
+ReferralRequest, and ProcedureRequest. See example in the sidebar.</p>
+
+<h2 id="patient-view"><code class="prettyprint">patient-view</code></h2>
+
+<p><strong>Purpose</strong>: Inform an external CDS service that the user has just opened a new
+patient record and is viewing a summary screen or &ldquo;face sheet&rdquo;, and solicit
+feedback about this patient.</p>
+
+<p><strong>Contextual data</strong>: None required beyond default context.</p>
 
           <h1 id="community">Community</h1>
 
