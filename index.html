@@ -457,6 +457,7 @@ You can see the <a href="http://editor.swagger.io/#/?import=https://raw.githubus
     <span class="o">}</span>,
     suggestions:           0..<span class="k">*</span> <span class="o">{</span>
       label:              0..1,
+      uuid:               0..1,
       create:             0..<span class="k">*</span>,
       delete:             0..<span class="k">*</span>
     <span class="o">}</span>,
@@ -542,6 +543,9 @@ to suggest a set of changes in the context of the current activity
 (e.g. the EHR might render this as the text on a button tied to this
 suggestion).</p>
 
+<p><strong><code class="prettyprint">cards.suggestions.uuid</code></strong> unique identifier for this suggestion. For details
+see <a href="#analytics">Suggestion Tracking Analytics</a></p>
+
 <p><strong><code class="prettyprint">cards.suggestions.create</code></strong> new resource(s) that this suggestion
 applies within the current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this
 holds the updated prescription as proposed by the suggestion).</p>
@@ -557,12 +561,12 @@ might want to run for additional information or to help guide a decision.</p>
 <p><strong><code class="prettyprint">cards.links.label</code></strong> human-readable label to display for this link (e.g. the EHR
 might render this as the underlined text of a clickable link).</p>
 
-<p><strong><code class="prettyprint">cards.links.url</code></strong> URL to load when a user clicks on this link. Note that this
-may be a &ldquo;deep link&rdquo; with context embedded in path segments, query parameters,
-or a hash. In general this URL should embed enough context for the app to
-determine the <code class="prettyprint">activityInstance</code>, and <code class="prettyprint">redirect</code> url upon downstream
-launch, because the EHR will simply use this url as-is, without appending any parameters
-at launch time.</p>
+<p><strong><code class="prettyprint">cards.links.url</code></strong> URL to load (via <code class="prettyprint">GET</code>, in a browser context) when a user
+clicks on this link. Note that this may be a &ldquo;deep link&rdquo; with context embedded
+in path segments, query parameters, or a hash. In general this URL should embed
+enough context for the app to determine the <code class="prettyprint">activityInstance</code>, and <code class="prettyprint">redirect</code>
+url upon downstream launch, because the EHR will simply use this url as-is,
+without appending any parameters at launch time.</p>
 
 <p><strong><code class="prettyprint">decisions</code></strong> grouping structure representing a decision to be applied directly to
 the user session. Note that a CDS service may only return a <code class="prettyprint">decision</code> after
@@ -577,6 +581,16 @@ prescription that a user had authored in an app session).</p>
 activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to
 remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code>
 where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</p>
+
+<h1 id="analytics">Analytics</h1>
+
+<p>Whenever a user clicks a button from a &ldquo;suggestion&rdquo; card, the EHR uses the
+suggestion <code class="prettyprint">uuid</code> to notify the CDS Service&rsquo;s analytics endpoint via a <code class="prettyprint">POST</code>
+with an empty body:</p>
+
+<p><code class="prettyprint">POST {baseUrl}/cds-services/{serviceId}/analytics/{uuid}</code></p>
+
+<p>If a suggestion has no <code class="prettyprint">uuid</code>, the EHR does not send a notification.</p>
 
           <h1 id="prefetch">Prefetch</h1>
 
