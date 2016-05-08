@@ -234,7 +234,7 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 </thead><tbody>
 <tr>
 <td><code class="prettyprint">services</code></td>
-<td><em>array</em>. An array of <em>CDS Services</em></td>
+<td><em>array</em>. An array of <strong>CDS Services</strong></td>
 </tr>
 </tbody></table>
 
@@ -283,27 +283,10 @@ The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.o
 </tbody></table>
 
 <h2 id="calling-a-cds-service">Calling a CDS Service</h2>
-<pre class="highlight shell"><code><span class="o">{</span>
-  hookInstannce:          1..1,
-  hook:                   1..1,
-  fhirServer:             0..1,
-  oauth:                  0..1 <span class="o">{</span>
-    token:                1..1,
-    scope:                1..1,
-    expires:              1..1
-  <span class="o">}</span>,
-  redirect:               1..1,
-  user:                   0..1,
-  patient:                0..1,
-  encounter:              0..1,
-  context:                0..<span class="k">*</span> resource<span class="o">(</span>Any<span class="o">)</span>,
-  prefetch:               0..1 <span class="o">{</span> <span class="o">}</span>
-<span class="o">}</span>
-</code></pre>
 <pre class="highlight plaintext"><code>curl
   -X POST \
   -H 'Content-type: application/json' \
-  --data @hook-details-see-below
+  --data @hook-details-see-example-below
   "https://example.com/cds-services/static-patient-greeter"
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -446,32 +429,6 @@ You can see the <a href="http://editor.swagger.io/#/?import=https://raw.githubus
 </aside>
 
 <h2 id="cds-service-response">CDS Service Response</h2>
-<pre class="highlight shell"><code><span class="o">{</span>
-  cards:                   0..<span class="k">*</span> <span class="o">{</span>
-    summary:              1..1,
-    detail:               0..1,
-    indicator:            1..1,
-    <span class="nb">source</span>:               1..1 <span class="o">{</span>
-      label:              1..1,
-      url:                0..1
-    <span class="o">}</span>,
-    suggestions:           0..<span class="k">*</span> <span class="o">{</span>
-      label:              0..1,
-      uuid:               0..1,
-      create:             0..<span class="k">*</span>,
-      delete:             0..<span class="k">*</span>
-    <span class="o">}</span>,
-    links:                 0..<span class="k">*</span> <span class="o">{</span>
-      label:              0..1,
-      url:                0..1
-    <span class="o">}</span>
-  <span class="o">}</span>,
-  decisions:               0..<span class="k">*</span> <span class="o">{</span>
-    create:               0..<span class="k">*</span>,
-    delete:               0..<span class="k">*</span>
-  <span class="o">}</span>
-<span class="o">}</span>
-</code></pre>
 
 <blockquote>
 <p>Example response</p>
@@ -508,79 +465,107 @@ You can see the <a href="http://editor.swagger.io/#/?import=https://raw.githubus
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p><strong><code class="prettyprint">cards</code></strong> CDS results for the EHR to present to the user. Cards can provide a 
-combination of information (for reading), suggested actions (to be applied if a user
-selects them), and links (to launch an app if the user selects them). The EHR decides
-how to display cards, but we recommend displaying suggestions using buttons, and
-links using underlined text.</p>
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">cards</code></td>
+<td><em>array</em>. An array of <strong>Cards</strong>. Cards can provide a combination of information (for reading), suggested actions (to be applied if a user selects them), and links (to launch an app if the user selects them). The EHR decides how to display cards, but we recommend displaying suggestions using buttons, and links using underlined text.</td>
+</tr>
+<tr>
+<td><nobr><code class="prettyprint">decisions</code></nobr></td>
+<td><em>array</em>. An array of <strong>Decisions</strong>. A decision should only be generated after interacting with the user through an app link. Decisions are designed to convey any choices the user made in an app session.</td>
+</tr>
+</tbody></table>
 
-<p><strong><code class="prettyprint">cards.summary</code></strong> one-sentence, &lt;140-character summary message for display to
-the user inside of this card.</p>
+<p>represents a user&rsquo;s choice made while interactin with the CDS Provider&rsquo;s external app. The first call to a service should never include any <code class="prettyprint">deecisions</code>, since no user interaction has occurred yet.</p>
 
-<p><strong><code class="prettyprint">cards.detail</code></strong> optional detailed information to display, represented in Markdown. (For
-non-urgent cards, the EHR may hide these details until the user clicks a link like
-&ldquo;view more details&hellip;&rdquo;.)</p>
+<p>Each <strong>Card</strong> is described by the following attributes.</p>
 
-<p><strong><code class="prettyprint">cards.indicator</code></strong>  urgency/importance of what this card
-conveys. Allowed values, in order of increasing urgency, are: <code class="prettyprint">success</code>,
-<code class="prettyprint">info</code>, <code class="prettyprint">warning</code>, <code class="prettyprint">hard-stop</code>. The EHR can use this field to
-help make UI display decisions such as sort order or coloring. The value 
-<code class="prettyprint">hard-stop</code> indicates that the workflow <strong>should not be allowed to proceed</strong>. </p>
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">summary</code></td>
+<td><em>string</em>. one-sentence, &lt;140-character summary message for display to the user inside of this card.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">detail</code></td>
+<td><em>string</em>.  optional detailed information to display, represented in Markdown. (For non-urgent cards, the EHR may hide these details until the user clicks a link like &ldquo;view more details&hellip;&rdquo;.)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">indicator</code></td>
+<td><em>string</em>.  urgency/importance of what this card conveys. Allowed values, in order of increasing urgency, are: <code class="prettyprint">success</code>, <code class="prettyprint">info</code>, <code class="prettyprint">warning</code>, <code class="prettyprint">hard-stop</code>. The EHR can use this field to help make UI display decisions such as sort order or coloring. The value <code class="prettyprint">hard-stop</code> indicates that the workflow should not be allowed to proceed.</td>
+</tr>
+<tr>
+<td><code class="prettyprint">source</code></td>
+<td><em>string</em>. grouping structure for a short, human-readable description (in <code class="prettyprint">source.label</code>) of the source of the information displayed on this card, with an optional link (in <code class="prettyprint">source.url</code>) where the user can learn more about the organization or data set that provided the information on this card. Note that <code class="prettyprint">source.url</code> should not be used to supply a context-specific &ldquo;drill-down&rdquo; view of the information on this card. For that, use <code class="prettyprint">link.url</code> instead.</td>
+</tr>
+<tr>
+<td><nobr><code class="prettyprint">suggestions</code></nobr></td>
+<td><em>array</em> of <strong>Suggestions</strong>, which allow a service to suggest a set of changes in the context of the current activity (e.g.  changing the dose of the medication currently being prescribed, for the <code class="prettyprint">medication-prescribe</code> activity)</td>
+</tr>
+<tr>
+<td><code class="prettyprint">links</code></td>
+<td><em>array</em> of <strong>Links</strong>, which allow a service to suggest a link to an app that the user might want to run for additional information or to help guide a decision.</td>
+</tr>
+</tbody></table>
 
-<p><strong><code class="prettyprint">cards.source</code></strong> grouping structure for a short, human-readable description (in <code class="prettyprint">source.label</code>)
-of the source of the information displayed on this card, with an optional link (in <code class="prettyprint">source.url</code>) 
-where the user can learn more about the organization or data set that provided
-the information on this card. Note that <code class="prettyprint">source.url</code> should <strong>not</strong> be used to
-supply a context-specific &ldquo;drill-down&rdquo; view of the information on this card. For that,
-use <code class="prettyprint">link.url</code> instead.</p>
+<p>Each <strong>Suggestion</strong> is described by the following attributes.</p>
 
-<p><strong><code class="prettyprint">cards.suggestions</code></strong> grouping structure for <em>suggestion cards</em>, which allow a service
-to suggest a set of changes in the context of the current activity
-(e.g.  changing the dose of the medication currently being prescribed, for the
-<code class="prettyprint">medication-prescribe</code> activity)</p>
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">label</code></td>
+<td><em>string</em>. human-readable label to display for this suggestion (e.g. the EHR might render this as the text on a button tied to this suggestion).</td>
+</tr>
+<tr>
+<td><code class="prettyprint">uuid</code></td>
+<td><em>string</em>. unique identifier for this suggestion. For details see <a href="#analytics">Suggestion Tracking Analytics</a></td>
+</tr>
+<tr>
+<td><nobr><code class="prettyprint">create</code></nobr></td>
+<td><em>string</em>. new resource(s) that this suggestion applies within the current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this holds the updated prescription as proposed by the suggestion).</td>
+</tr>
+<tr>
+<td><code class="prettyprint">delete</code></td>
+<td><em>string</em>. id(s) of any resources to remove from the current activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code> where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</td>
+</tr>
+</tbody></table>
 
-<p><strong><code class="prettyprint">cards.suggestions.label</code></strong> human-readable label to display for this suggestion
-(e.g. the EHR might render this as the text on a button tied to this
-suggestion).</p>
+<p>Each <strong>Link</strong> described by the following attributes.</p>
 
-<p><strong><code class="prettyprint">cards.suggestions.uuid</code></strong> unique identifier for this suggestion. For details
-see <a href="#analytics">Suggestion Tracking Analytics</a></p>
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><nobr><code class="prettyprint">label</code></nobr></td>
+<td><em>string</em>. human-readable label to display for this link (e.g. the EHR might render this as the underlined text of a clickable link).</td>
+</tr>
+<tr>
+<td><code class="prettyprint">url</code></td>
+<td><em>URL</em>. URL to load (via <code class="prettyprint">GET</code>, in a browser context) when a user clicks on this link. Note that this may be a &ldquo;deep link&rdquo; with context embedded in path segments, query parameters, or a hash. In general this URL should embed enough context for the app to determine the <code class="prettyprint">activityInstance</code>, and <code class="prettyprint">redirect</code> url upon downstream launch, because the EHR will simply use this url as-is, without appending any parameters at launch time.</td>
+</tr>
+</tbody></table>
 
-<p><strong><code class="prettyprint">cards.suggestions.create</code></strong> new resource(s) that this suggestion
-applies within the current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this
-holds the updated prescription as proposed by the suggestion).</p>
-
-<p><strong><code class="prettyprint">cards.suggestions.delete</code></strong> id(s) of any resources to remove from the current
-activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to
-remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code>
-where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</p>
-
-<p><strong><code class="prettyprint">cards.links</code></strong> grouping structure for a link to an app that the user
-might want to run for additional information or to help guide a decision.</p>
-
-<p><strong><code class="prettyprint">cards.links.label</code></strong> human-readable label to display for this link (e.g. the EHR
-might render this as the underlined text of a clickable link).</p>
-
-<p><strong><code class="prettyprint">cards.links.url</code></strong> URL to load (via <code class="prettyprint">GET</code>, in a browser context) when a user
-clicks on this link. Note that this may be a &ldquo;deep link&rdquo; with context embedded
-in path segments, query parameters, or a hash. In general this URL should embed
-enough context for the app to determine the <code class="prettyprint">activityInstance</code>, and <code class="prettyprint">redirect</code>
-url upon downstream launch, because the EHR will simply use this url as-is,
-without appending any parameters at launch time.</p>
-
-<p><strong><code class="prettyprint">decisions</code></strong> grouping structure representing a decision to be applied directly to
-the user session. Note that a CDS service may only return a <code class="prettyprint">decision</code> after
-interacting with the user through an app link. Decisions are designed to convey
-any choices the user made in an app session.</p>
-
-<p><strong><code class="prettyprint">decisions.create</code></strong> new resource(s) that the EHR should create within the
-current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this would be the updated
-prescription that a user had authored in an app session).</p>
-
-<p><strong><code class="prettyprint">decisions.delete</code></strong> id(s) of any resources to remove from the current
-activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to
-remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code>
-where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</p>
+<p>Each <strong>Decision</strong> described by the following attributes.
+Field | Description
+&mdash;&ndash; | &mdash;&mdash;&mdash;&ndash;
+<code class="prettyprint">create</code> |<em>array</em> of <em>strings</em>. id(s) of new resource(s) that the EHR should create within the current activity (e.g. for <code class="prettyprint">medication-prescribe</code>, this would be the updated prescription that a user had authored in an app session).
+<nobr><code class="prettyprint">delete</code></nobr> |<em>array</em> of <em>strings</em>. id(s) of any resources to remove from the current activity (e.g. for the <code class="prettyprint">order-review</code> activity, this would provide a way to remove orders from the pending list). In activities like <code class="prettyprint">medication-prescribe</code> where only one &ldquo;content&rdquo; resource is ever relevant, this field may be omitted.</p>
 
 <h1 id="analytics">Analytics</h1>
 
