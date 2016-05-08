@@ -620,11 +620,11 @@ page&rdquo; links allowed — is passed along to the CDS Service using the
 <code class="prettyprint">prefetch</code> parameter (see below for a complete example).</p>
 
 <h2 id="example-prefetch-request">Example prefetch request</h2>
-<pre class="highlight plaintext"><code>"prefetch": {
-  "p": "Patient/{{Patient.id}}",
-  "a1c": "Observation?patient={{Patient.id}}&amp;code=4548-4&amp;_count=1&amp;sort:desc=date"
-}
-</code></pre>
+<pre class="highlight json"><code><span class="s2">"prefetch"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"p"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Patient/{{Patient.id}}"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"a1c"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Observation?patient={{Patient.id}}&amp;code=4548-4&amp;_count=1&amp;sort:desc=date"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <p>Here is an example prefetch property from a CDS service discovery endpoint. The
 goal is to know, at call time:</p>
