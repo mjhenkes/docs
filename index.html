@@ -179,7 +179,7 @@ when the EHR invokes the hook for a second time with the same
           <h1 id="cds-services">CDS Services</h1>
 
 <h2 id="discovery">Discovery</h2>
-<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/.well-known/cds-services"</span>
+<pre class="highlight shell"><code>curl <span class="s2">"https://example.com/cds-services"</span>
 </code></pre>
 
 <blockquote>
@@ -214,13 +214,9 @@ when the EHR invokes the hook for a second time with the same
 
 <h3 id="http-request">HTTP Request</h3>
 
-<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/.well-known/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
+<p>The discovery endpoint is always available at <code class="prettyprint">{baseUrl}/cds-services</code>. For example, if the <code class="prettyprint">baseUrl</code> is https://example.com, the EHR would invoke:</p>
 
-<p><code class="prettyprint">GET https://example.com/.well-known/cds-services</code></p>
-
-<aside class="notice">
-The URI path prefix of /.well-known/ is defined by <a href="https://tools.ietf.org/html/rfc5785">RFC 5785</a> for the sole purpose of expressing static, well-known URLs.
-</aside>
+<p><code class="prettyprint">GET https://example.com/cds-services</code></p>
 
 <h3 id="response">Response</h3>
 
