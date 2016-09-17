@@ -221,7 +221,7 @@ Field | Description
 `cards` |*array*. An array of **Cards**. Cards can provide a combination of information (for reading), suggested actions (to be applied if a user selects them), and links (to launch an app if the user selects them). The EHR decides how to display cards, but we recommend displaying suggestions using buttons, and links using underlined text.
 <nobr>`decisions`</nobr> |*array*. An array of **Decisions**. A decision should only be generated after interacting with the user through an app link. Decisions are designed to convey any choices the user made in an app session.
 
-represents a user's choice made while interactin with the CDS Provider's external app. The first call to a service should never include any `deecisions`, since no user interaction has occurred yet.
+represents a user's choice made while interactin with the CDS Provider's external app. The first call to a service should never include any `decisions`, since no user interaction has occurred yet.
 
 Each **Card** is described by the following attributes.
 
